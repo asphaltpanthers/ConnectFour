@@ -5,6 +5,9 @@ public class ConnectFour {
 		
 		if (validArgs) {
 			int xSize = Integer.parseInt(args[0]);
+			Game game = new Game(xSize);
+			game.play();
+			game.showResults();
 		}
 		else {
 			showUsageAndExit();
