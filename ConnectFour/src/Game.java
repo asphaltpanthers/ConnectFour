@@ -1,3 +1,4 @@
+import java.util.Scanner;
 
 public class Game {
 	private int size;
@@ -25,7 +26,11 @@ public class Game {
 	
 	public void play() {
 		while (!winner() && !allSpotsFilled()) {
-			
+			displayBoard();
+			String move = inputMove();
+			if (moveValid(move)) {
+				makeMove(move);
+			}
 		}
 	}
 	
@@ -33,11 +38,11 @@ public class Game {
 		
 	}
 	
-	private Boolean winner() {
+	private boolean winner() {
 		return horizonalWinner() || verticalWinner() || diagonalWinner();
 	}
 	
-	private Boolean horizonalWinner() {
+	private boolean horizonalWinner() {
 		String currentPlayer = null;
 		
 		for (String[] row : board) {
@@ -64,7 +69,7 @@ public class Game {
 		return false;
 	}
 	
-	private Boolean verticalWinner() {
+	private boolean verticalWinner() {
 		String currentPlayer = null;
 		
 		for (int x = 0; x < board.length; x++) {
@@ -92,7 +97,7 @@ public class Game {
 		return false;
 	}
 	
-	private Boolean diagonalWinner() {
+	private boolean diagonalWinner() {
 		for (int startY = 0; startY < size; startY++) {
 			if (checkUpperLeftDiagonal(0, startY)) {
 				return true;
@@ -108,7 +113,7 @@ public class Game {
 		return false;
 	}
 	
-	private Boolean checkUpperLeftDiagonal(int startX, int startY) {
+	private boolean checkUpperLeftDiagonal(int startX, int startY) {
 		int x = startX;
 		int y = startY;
 		int counter = 0;
@@ -143,7 +148,7 @@ public class Game {
 		return false;
 	}
 	
-	private Boolean allSpotsFilled() {
+	private boolean allSpotsFilled() {
 		for (String[] row : board) {
 			for (String spot : row) {
 				if (spot == BLANK_SPACE) {
@@ -153,5 +158,114 @@ public class Game {
 		}
 		
 		return true;
+	}
+	
+	private void displayBoard() {
+		display2dArray(board);
+	}
+	
+	private void display2dArray(String[][] arr) {
+		for (int x = 0; x < arr[0].length; x++) {
+			System.out.print(x);
+		}
+		System.out.println();
+		
+		for (String[] row : arr) {
+			for (String spot : row) {
+				System.out.print(spot);
+			}
+			System.out.println();
+		}
+	}
+	
+	private String inputMove() {
+		System.out.print("Player " + turn + ", enter move > ");
+		Scanner in = new Scanner(System.in);
+		String move = in.nextLine();
+		in.close();
+		return move;
+	}
+	
+	private boolean moveValid(String moveS) {
+		if (moveS.compareToIgnoreCase("flip") == 0 || moveS.compareToIgnoreCase("rot") == 0) {
+			return true;
+		}
+		
+		int move = Integer.parseInt(moveS);
+		return move >= 0 && move < board[0].length && board[0][move] == BLANK_SPACE;
+	}
+	
+	private void makeMove(String move) {
+		if (move.compareToIgnoreCase("flip") == 0) {
+			flipBoard();
+		}
+		else if (move == "rot") {
+			rotateBoard();
+		}
+		else {
+			dropPiece(Integer.parseInt(move));
+		}
+	}
+	
+	private void flipBoard() {
+		String[][] tempBoard = deepDupArray(board);
+		for (int x = 0; x < size; x++) {
+			for (int y = 0; y < size; y++) {
+				board[x][y] = tempBoard[size - x - 1][y];
+			}
+		}
+		piecesFall();
+	}
+	
+	private void rotateBoard() {
+		
+	}
+	
+	private void dropPiece(int move) {
+		
+	}
+	
+	private String[][] deepDupArray(String[][] arr) {
+		String[][] toReturn = new String[size][size];
+		for (int i = 0; i < arr.length; i++) {
+			for (int j = 0; j < arr[i].length; j++) {
+				toReturn[i][j] = arr[i][j];
+			}
+		}
+		return toReturn;
+	}
+	
+	private void piecesFall() {
+		int bottomRow = size - 1;
+		for (int column = 0; column < size; column++) {
+			if (board[bottomRow][column] != BLANK_SPACE || allBlanksInColumn(column)) {
+				//Skip this column, it is either full or entirely empty.
+			}
+			else {
+				while (board[bottomRow][column] == BLANK_SPACE) {
+					shiftDown(column);
+				}
+			}
+		}
+	}
+	
+	private boolean allBlanksInColumn(int column) {
+		for (int x = 0; x < size; x++) {
+			if (board[x][column] != BLANK_SPACE) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private void shiftDown(int column) {
+		String aboveSavedSpot = BLANK_SPACE;
+		String savedSpot = "BLANK_SPACE";
+		
+		for (int x = 0; x < size; x++) {
+			savedSpot = board[x][column];
+			board[x][column] = aboveSavedSpot;
+			aboveSavedSpot = savedSpot;
+		}
 	}
 }
