@@ -4,6 +4,7 @@ public class Game {
 	private int size;
 	private String[][] board;
 	private String turn;
+	private Scanner in;
 	
 	private final String BLANK_SPACE = ".";
 	private final String X_PLAYER = "X";
@@ -13,6 +14,7 @@ public class Game {
 		this.size = size;
 		board = generateBoard(size);
 		turn = X_PLAYER;
+		in = new Scanner(System.in);
 	}
 	
 	private String[][] generateBoard(int size) {
@@ -201,9 +203,7 @@ public class Game {
 	
 	private String inputMove() {
 		System.out.print("Player " + turn + ", enter move > ");
-		Scanner in = new Scanner(System.in);
 		String move = in.nextLine();
-		in.close();
 		return move;
 	}
 	
