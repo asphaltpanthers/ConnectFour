@@ -7,6 +7,7 @@ public class Game {
 	
 	private final String BLANK_SPACE = ".";
 	private final String X_PLAYER = "X";
+	private final String O_PLAYER = "O";
 	
 	public Game(int size) {
 		this.size = size;
@@ -30,12 +31,27 @@ public class Game {
 			String move = inputMove();
 			if (moveValid(move)) {
 				makeMove(move);
+				swapTurn();
+			}
+			else {
+				displayInvalid(move);
 			}
 		}
 	}
 	
 	public void showResults() {
-		
+		displayBoard();
+		if (allSpotsFilled()) {
+			System.out.println("It's a tie");
+		}
+		else if (winner()) {
+			if (turn == O_PLAYER) {
+				System.out.println("Player X won!");
+			}
+			else {
+				System.out.println("Player O won!");
+			}
+		}
 	}
 	
 	private boolean winner() {
@@ -120,29 +136,34 @@ public class Game {
 		String currentPlayer = null;
 		
 		for (int i = 0; i < size; i++) {
-			String spot = board[x][y];
+			try {			
+				String spot = board[x][y];
 			
-			if (spot == null) {
-				return false;
-			}
-			
-			if (spot == BLANK_SPACE) {
-				counter = 0;
-				currentPlayer = null;
-			}
-			else if (spot == currentPlayer) {
-				counter += 1;
-				if (counter == 3) {
-					return true;
+				if (spot == null) {
+					return false;
 				}
-			}
-			else {
-				currentPlayer = spot;
-				counter = 0;
-			}
 			
-			x += 1;
-			y += 1;
+				if (spot == BLANK_SPACE) {
+					counter = 0;
+					currentPlayer = null;
+				}
+				else if (spot == currentPlayer) {
+					counter += 1;
+					if (counter == 3) {
+						return true;
+					}
+				}
+				else {
+					currentPlayer = spot;
+					counter = 0;
+				}
+			
+				x += 1;
+				y += 1;
+			}
+			catch (Exception e) {
+				// We walked past the edge
+			}
 		}
 		
 		return false;
@@ -267,5 +288,22 @@ public class Game {
 			board[x][column] = aboveSavedSpot;
 			aboveSavedSpot = savedSpot;
 		}
+	}
+	
+	private void swapTurn() {
+		if (turn == X_PLAYER) {
+			turn = O_PLAYER;
+		}
+		else {
+			turn = X_PLAYER;
+		}
+	}
+	
+	private void displayInvalid(String move) {
+		System.out.println(move + " is an invalid move.");
+		System.out.println("Please enter one of the following:");
+		System.out.println("1. A valid column number");
+		System.out.println("2. 'flip' to flip the board");
+		System.out.println("3. 'rot' to rotate the board");
 	}
 }
