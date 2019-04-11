@@ -27,7 +27,7 @@ public class Game {
 		return board;
 	}
 	
-	public void play() {
+	public void play() throws Exception {
 		while (!winner() && !allSpotsFilled()) {
 			displayBoard();
 			String move = inputMove();
@@ -47,7 +47,7 @@ public class Game {
 			System.out.println("It's a tie");
 		}
 		else if (winner()) {
-			if (turn == O_PLAYER) {
+			if (turn.equals(O_PLAYER)) {
 				System.out.println("Player X won!");
 			}
 			else {
@@ -67,11 +67,11 @@ public class Game {
 			int counter = 0;
 			
 			for (String spot : row) {
-				if (spot == BLANK_SPACE) {
+				if (spot.equals(BLANK_SPACE)) {
 					counter = 0;
 					currentPlayer = null;
 				}
-				else if (spot == currentPlayer) {
+				else if (spot.equals(currentPlayer)) {
 					counter += 1;
 					if (counter == 3) {
 						return true;
@@ -95,11 +95,11 @@ public class Game {
 			
 			for (int y = 0; y < board[x].length; y++) {
 				String spot = board[y][x];
-				if (spot == BLANK_SPACE) {
+				if (spot.equals(BLANK_SPACE)) {
 					counter = 0;
 					currentPlayer = null;
 				}
-				else if (spot == currentPlayer) {
+				else if (spot.equals(currentPlayer)) {
 					counter += 1;
 					if (counter == 3) {
 						return true;
@@ -145,11 +145,11 @@ public class Game {
 					return false;
 				}
 			
-				if (spot == BLANK_SPACE) {
+				if (spot.equals(BLANK_SPACE)) {
 					counter = 0;
 					currentPlayer = null;
 				}
-				else if (spot == currentPlayer) {
+				else if (spot.equals(currentPlayer)) {
 					counter += 1;
 					if (counter == 3) {
 						return true;
@@ -174,7 +174,7 @@ public class Game {
 	private boolean allSpotsFilled() {
 		for (String[] row : board) {
 			for (String spot : row) {
-				if (spot == BLANK_SPACE) {
+				if (spot.equals(BLANK_SPACE)) {
 					return false;
 				}
 			}
@@ -213,14 +213,14 @@ public class Game {
 		}
 		
 		int move = Integer.parseInt(moveS);
-		return move >= 0 && move < board[0].length && board[0][move] == BLANK_SPACE;
+		return move >= 0 && move < board[0].length && board[0][move].equals(BLANK_SPACE);
 	}
 	
-	private void makeMove(String move) {
+	private void makeMove(String move) throws Exception {
 		if (move.compareToIgnoreCase("flip") == 0) {
 			flipBoard();
 		}
-		else if (move == "rot") {
+		else if (move.equals("rot")) {
 			rotateBoard();
 		}
 		else {
@@ -239,11 +239,30 @@ public class Game {
 	}
 	
 	private void rotateBoard() {
-		
+		String[][] tempBoard = deepDupArray(board);
+		for (int x = 0; x < size; x++) {
+			for (int y = 0; y < size; y++) {
+				board[x][y] = tempBoard[size - y - 1][x];
+			}
+		}
+		piecesFall();
 	}
 	
-	private void dropPiece(int move) {
-		
+	private void dropPiece(int column) throws Exception {
+		int row = size - 1;
+		boolean found = false;
+		while (!found) {
+			if (board[row][column].equals(BLANK_SPACE)) {
+				board[row][column] = turn;
+				found = true;
+			}
+			else {
+				row -= 1;
+				if (row < 0) {
+					throw new Exception("Could not drop piece in column " + column);
+				}
+			}
+		}
 	}
 	
 	private String[][] deepDupArray(String[][] arr) {
@@ -263,7 +282,7 @@ public class Game {
 				//Skip this column, it is either full or entirely empty.
 			}
 			else {
-				while (board[bottomRow][column] == BLANK_SPACE) {
+				while (board[bottomRow][column].equals(BLANK_SPACE)) {
 					shiftDown(column);
 				}
 			}
@@ -291,7 +310,7 @@ public class Game {
 	}
 	
 	private void swapTurn() {
-		if (turn == X_PLAYER) {
+		if (turn.equals(X_PLAYER)) {
 			turn = O_PLAYER;
 		}
 		else {
