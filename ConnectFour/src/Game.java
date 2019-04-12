@@ -1,15 +1,19 @@
 import java.util.Scanner;
 
+// This is the actual game class for the connect_four game
 public class Game {
 	private int size;
 	private String[][] board;
 	private String turn;
 	private Scanner in;
-	
+
+	// Game class constants
 	private final String BLANK_SPACE = ".";
 	private final String X_PLAYER = "X";
 	private final String O_PLAYER = "O";
 	
+	// Initialization of game
+	// Create a new blank board and have the X_PLAYER start the game
 	public Game(int size) {
 		this.size = size;
 		board = generateBoard(size);
@@ -17,6 +21,8 @@ public class Game {
 		in = new Scanner(System.in);
 	}
 	
+	// Creates a board with x rows and x columns
+	// The board at the start of game consists entirely of blank spaces
 	private String[][] generateBoard(int size) {
 		String[][] board = new String[size][size];
 		for (int i = 0; i < size; i++) {
@@ -27,7 +33,9 @@ public class Game {
 		return board;
 	}
 	
+	// Play the game!
 	public void play() throws Exception {
+		// Play until either there is a winner or there are no more spots to drop checkers
 		while (!winner() && !allSpotsFilled()) {
 			displayBoard();
 			String move = inputMove();
@@ -41,6 +49,10 @@ public class Game {
 		}
 	}
 	
+	// Show the results of the game - it is one of the following:
+	// 1. It's a tie
+	// 2. Player X won!
+	// 3. Player O won!
 	public void showResults() {
 		displayBoard();
 		if (allSpotsFilled()) {
@@ -56,10 +68,12 @@ public class Game {
 		}
 	}
 	
+	// Returns true if a connect-four has been found on the board, false otherwise
 	private boolean winner() {
 		return horizonalWinner() || verticalWinner() || diagonalWinner();
 	}
 	
+	// Check to see if anybody won on a row.
 	private boolean horizonalWinner() {
 		String currentPlayer = null;
 		
@@ -87,6 +101,7 @@ public class Game {
 		return false;
 	}
 	
+	// Check to see if anybody won on a column.
 	private boolean verticalWinner() {
 		String currentPlayer = null;
 		
@@ -115,22 +130,29 @@ public class Game {
 		return false;
 	}
 	
+	// Check to see if somebody won on a diagonal.
 	private boolean diagonalWinner() {
+		// Look diagonally (upper-left to lower-right) along the top row
+		// Return true if connect four found
 		for (int startY = 0; startY < size; startY++) {
 			if (checkUpperLeftDiagonal(0, startY)) {
 				return true;
 			}
 		}
 		
+		// Look diagonally (upper-left to lower-right) along the the left column
+		// Return true if connect four found
 		for (int startX = 0; startX < size; startX++) {
 			if (checkUpperLeftDiagonal(startX, 0)) {
 				return true;
 			}
 		}
 		
+		// All possible diagonals have been checked, but no connect-fours found, so just return false
 		return false;
 	}
 	
+	// Check an upper-left to lower-right diagonal starting at location startX, startY
 	private boolean checkUpperLeftDiagonal(int startX, int startY) {
 		int x = startX;
 		int y = startY;
@@ -171,6 +193,7 @@ public class Game {
 		return false;
 	}
 	
+	// Returns true if all spots are filled by checkers, false otherwise
 	private boolean allSpotsFilled() {
 		for (String[] row : board) {
 			for (String spot : row) {
@@ -183,10 +206,12 @@ public class Game {
 		return true;
 	}
 	
+	// Specifically print out the board used in the game
 	private void displayBoard() {
 		display2dArray(board);
 	}
 	
+	// Pretty print a 2-dimensional array
 	private void display2dArray(String[][] arr) {
 		for (int x = 0; x < arr[0].length; x++) {
 			System.out.print(x);
@@ -201,12 +226,14 @@ public class Game {
 		}
 	}
 	
+	// Get input from player from standard input
 	private String inputMove() {
 		System.out.print("Player " + turn + ", enter move > ");
 		String move = in.nextLine();
 		return move;
 	}
 	
+	// Determines whether or not a move is valid
 	private boolean moveValid(String moveS) {
 		if (moveS.compareToIgnoreCase("flip") == 0 || moveS.compareToIgnoreCase("rot") == 0) {
 			return true;
@@ -216,6 +243,7 @@ public class Game {
 		return move >= 0 && move < board[0].length && board[0][move].equals(BLANK_SPACE);
 	}
 	
+	// Make a move - either flip, rot, or a column number
 	private void makeMove(String move) throws Exception {
 		if (move.compareToIgnoreCase("flip") == 0) {
 			flipBoard();
@@ -228,6 +256,8 @@ public class Game {
 		}
 	}
 	
+	// Flips the board so that all pieces end up in their opposite locations vertically.
+	// Pieces then fall down to the "floor".
 	private void flipBoard() {
 		String[][] tempBoard = deepDupArray(board);
 		for (int x = 0; x < size; x++) {
@@ -238,6 +268,8 @@ public class Game {
 		piecesFall();
 	}
 	
+	// Rotates the board 90 degrees so that all pieces end up "rotated".
+	// Pieces then fall down to the "floor".
 	private void rotateBoard() {
 		String[][] tempBoard = deepDupArray(board);
 		for (int x = 0; x < size; x++) {
@@ -248,6 +280,7 @@ public class Game {
 		piecesFall();
 	}
 	
+	// Drop a piece on a column. It will "fall" until it hits the last blank space.
 	private void dropPiece(int column) throws Exception {
 		int row = size - 1;
 		boolean found = false;
@@ -265,6 +298,7 @@ public class Game {
 		}
 	}
 	
+	// Returns a deep duplication of the array passed in as an arg.
 	private String[][] deepDupArray(String[][] arr) {
 		String[][] toReturn = new String[size][size];
 		for (int i = 0; i < arr.length; i++) {
@@ -275,6 +309,7 @@ public class Game {
 		return toReturn;
 	}
 	
+	// Causes all pieces to "fall" to the "floor" after a rotation or flip
 	private void piecesFall() {
 		int bottomRow = size - 1;
 		for (int column = 0; column < size; column++) {
@@ -289,6 +324,8 @@ public class Game {
 		}
 	}
 	
+	// Returns true if for the column specified, it consists only of blank spaces.
+	// Returns fals otherwise.
 	private boolean allBlanksInColumn(int column) {
 		for (int x = 0; x < size; x++) {
 			if (board[x][column] != BLANK_SPACE) {
@@ -298,6 +335,8 @@ public class Game {
 		return true;
 	}
 	
+	// Shift all pieces in a column down one location.
+	// The top location becomes a blank.
 	private void shiftDown(int column) {
 		String aboveSavedSpot = BLANK_SPACE;
 		String savedSpot = "BLANK_SPACE";
@@ -309,6 +348,7 @@ public class Game {
 		}
 	}
 	
+	// Change the player - if it's currently the X_PLAYER, change to the O_PLAYER and vice-versa
 	private void swapTurn() {
 		if (turn.equals(X_PLAYER)) {
 			turn = O_PLAYER;
@@ -318,6 +358,7 @@ public class Game {
 		}
 	}
 	
+	// Displays a message to the user stating the move was invalid
 	private void displayInvalid(String move) {
 		System.out.println(move + " is an invalid move.");
 		System.out.println("Please enter one of the following:");
